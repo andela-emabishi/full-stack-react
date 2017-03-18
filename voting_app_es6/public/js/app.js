@@ -1,10 +1,14 @@
 class ProductList extends React.Component { // eslint-disable-line no-unused-vars
-  constructor(props, context) {
-    super(props,context);
-    this.state = {
-      products:[]
-    }
-    this.handleUpVote = this.handleUpVote.bind(this);
+  // constructor(props, context) {
+  //   super(props,context);
+  //   this.state = {
+  //     products:[]
+  //   }
+    // this.handleUpVote = this.handleUpVote.bind(this);
+
+// No need for constructor. This context qutobound to class
+  state = {
+    products: []
   }
 
   componentDidMount() {
@@ -13,7 +17,20 @@ class ProductList extends React.Component { // eslint-disable-line no-unused-var
     });
   }
 
-  handleUpVote(productId) {
+  // handleUpVote(productId) {
+  //   // console.log(productId + ' was upvoted!');
+  //   const votedProducts = this.state.products.map(product => {
+  //     return product.id == productId ? Object.assign({}, product, { votes: product.votes + 1}):
+  //       product;
+  //   });
+  //   this.setState({
+  //     products: votedProducts
+  //   });
+  // }
+
+  // Propery initialisers
+  // No need to bind this in constructor manually. this of custom function autobound to this of component
+  handleUpVote = (productId) => {
     // console.log(productId + ' was upvoted!');
     const votedProducts = this.state.products.map(product => {
       return product.id == productId ? Object.assign({}, product, { votes: product.votes + 1}):
@@ -50,14 +67,21 @@ class ProductList extends React.Component { // eslint-disable-line no-unused-var
 }
 
 class Product extends React.Component {
-  constructor(props, context) {
-    super(props,context);
-    this.handleProductUpVote = this.handleProductUpVote.bind(this);
-  }
+  // constructor(props, context) {
+  //   super(props,context);
+  //   this.handleProductUpVote = this.handleProductUpVote.bind(this);
+  // }
+  //
+  // handleProductUpVote() {
+  //   this.props.handleUpVote(this.props.id)
+  // }
 
-  handleProductUpVote() {
+  // Propery initialisers
+  // No need to call super to bind this context of custom function to this of component
+  handleProductUpVote = () => (
     this.props.handleUpVote(this.props.id)
-  }
+  )
+
   render() {
     return (
       <div className='item'>
