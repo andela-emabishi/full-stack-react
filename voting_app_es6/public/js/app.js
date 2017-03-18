@@ -1,12 +1,4 @@
 class ProductList extends React.Component { // eslint-disable-line no-unused-vars
-  // constructor(props, context) {
-  //   super(props,context);
-  //   this.state = {
-  //     products:[]
-  //   }
-    // this.handleUpVote = this.handleUpVote.bind(this);
-
-// No need for constructor. This context qutobound to class
   state = {
     products: []
   }
@@ -17,24 +9,21 @@ class ProductList extends React.Component { // eslint-disable-line no-unused-var
     });
   }
 
-  // handleUpVote(productId) {
-  //   // console.log(productId + ' was upvoted!');
-  //   const votedProducts = this.state.products.map(product => {
-  //     return product.id == productId ? Object.assign({}, product, { votes: product.votes + 1}):
-  //       product;
-  //   });
-  //   this.setState({
-  //     products: votedProducts
-  //   });
-  // }
-
-  // Propery initialisers
-  // No need to bind this in constructor manually. this of custom function autobound to this of component
   handleUpVote = (productId) => {
     // console.log(productId + ' was upvoted!');
     const votedProducts = this.state.products.map(product => {
       return product.id == productId ? Object.assign({}, product, { votes: product.votes + 1}):
         product;
+    });
+    this.setState({
+      products: votedProducts
+    });
+  }
+
+  handleDownVote = (productId) => {
+    const votedProducts = this.state.products.map((product) => {
+      return product.id == productId ? Object.assign({}, product, { votes: product.votes - 1}):
+        product
     });
     this.setState({
       products: votedProducts
@@ -56,6 +45,7 @@ class ProductList extends React.Component { // eslint-disable-line no-unused-var
         submitterAvatarUrl={product.submitterAvatarUrl}
         productImageUrl={product.productImageUrl}
         handleUpVote={this.handleUpVote}
+        handleDownVote={this.handleDownVote}
         />
     ));
     return (
@@ -67,19 +57,12 @@ class ProductList extends React.Component { // eslint-disable-line no-unused-var
 }
 
 class Product extends React.Component {
-  // constructor(props, context) {
-  //   super(props,context);
-  //   this.handleProductUpVote = this.handleProductUpVote.bind(this);
-  // }
-  //
-  // handleProductUpVote() {
-  //   this.props.handleUpVote(this.props.id)
-  // }
-
-  // Propery initialisers
-  // No need to call super to bind this context of custom function to this of component
   handleProductUpVote = () => (
     this.props.handleUpVote(this.props.id)
+  )
+
+  handleProductDownVote = () => (
+    this.props.handleDownVote(this.props.id)
   )
 
   render() {
@@ -92,6 +75,7 @@ class Product extends React.Component {
           <div className='header'>
             <a>
               <i className='large caret up icon' onClick={this.handleProductUpVote}/>
+              <i className='large caret down icon' onClick={this.handleProductDownVote} />
             </a>
             {this.props.votes}
           </div>
