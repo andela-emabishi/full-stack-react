@@ -1,4 +1,10 @@
+/*
+  eslint-disable react/prefer-stateless-function, react/jsx-boolean-value,
+  no-undef, jsx-a11y/label-has-for
+*/
+
 class TimerDashboard extends React.Component {
+  // Property initialiser syntax. No need to create constructor to call super
   state = {
     timers: [
       {
@@ -14,9 +20,17 @@ class TimerDashboard extends React.Component {
         id: uuid.v4(),
         elapsed: 1273998,
         runningSince: null,
+      },
+      {
+        title: 'Max Bench 100kg',
+        project: 'Strength Training',
+        id: uuid.v4(),
+        elapsed: 3890985,
+        runningSince: null
       }
     ]
   }
+
   render() {
     return (
       <div className="ui three column centered grid">
@@ -31,35 +45,42 @@ class TimerDashboard extends React.Component {
 
 class EditableTimerList extends React.Component {
   render() {
+    const TimerComponents = this.props.timers.map(timer => (
+      <EditableTimer
+        key={timer.id}
+        id={timer.id}
+        title={timer.title}
+        project={timer.project}
+        elapsed={timer.elapsed}
+        runningSince={timer.runningSince}
+        />
+    ))
     return (
       <div id="timers">
-        <EditableTimer
-          title='Learn ReactJS'
-          project='Javascript'
-          elapsed='8986300'
-          runningSince={null}
-          editFormIsOpen={false}
-        />
-      <EditableTimer
-        title='Max Bench 100kg'
-        project='Strength Training'
-        elaspsed='3890985'
-        runningSince={null}
-        editFormIsOpen={true}
-      />
+        {TimerComponents}
       </div>
     );
   }
 }
 
+// renders TimerForm or Timer depending on whether the editFormIsOpen bool is true or false
+// manages the state of the edit form because top level component TimerDashboard
+// doesn't need to know whether the timer form is open or not
 class EditableTimer extends React.Component {
+  state = {
+    // closed by default
+    editFormIsOpen: false
+  }
   render() {
-    return this.props.editFormIsOpen ?
+    return this.state.editFormIsOpen ?
+    // Form only requires title and project to render editable form
     <TimerForm
+      id={this.props.id}
       title={this.props.title}
       project={this.props.project}
     />:
     <Timer
+      id={this.props.id}
       title={this.props.title}
       project={this.props.project}
       elapsed={this.props.elapsed}
@@ -69,6 +90,34 @@ class EditableTimer extends React.Component {
 }
 
 class TimerForm extends React.Component {
+  constructor(props,context) {
+    super(props,context);
+    this.state = {
+      // since we're using props to initialise the state object, we must have a constructor that calls super with props
+      // When the Timerform Component is used to create a new timer, the title and project description
+      //  will be blank hence those props will be undefined
+      // When it's used to edit a timer, the props will be valid
+      title: this.props.title || '',
+      project: this.props.project || ''
+    }
+  }
+
+  handleTitleChange = (event) => {
+    let title = event.target.value;
+    this.setState({
+      // ES6 shorthand for title: title
+      title
+    })
+  }
+
+  handleProjectChange = (event) => {
+    let project = event.target.value;
+    this.setState({
+      // ES6 shorthand for project: project
+      project
+    })
+  }
+
   render() {
     const submitText = this.props.title ? 'Update' : 'Create';
     return (
@@ -77,11 +126,11 @@ class TimerForm extends React.Component {
           <div className="ui form">
             <div className="field">
               <label>Title</label>
-              <input type="text" defaultValue={this.props.title} />
+              <input type="text" value={this.state.title} onChange={this.handleTitleChange}/>
             </div>
             <div className="field">
               <label>Project</label>
-              <input type="text" defaultValue={this.props.project} />
+              <input type="text" value={this.state.project} onChange={this.handleProjectChange}/>
             </div>
             <div className="ui two bottom attached buttons">
               <button className="ui basic blue button">{submitText}</button>
@@ -124,12 +173,26 @@ class Timer extends React.Component {
 
 class ToggleableTimerForm extends React.Component {
   // If prop isOen is true then render TimerForm else render the button
+  // manages its own state i.e. if isOpen, the form will show, if !isOpen, the button will show
+  state = {
+    // Form closed by default and the button shows
+    isOpen: false
+  }
+
+// ES7 property initialiser syntax.
+// No need to bind this of function to instance of parent class to be extended
+  handleFormOpen = () => {
+    this.setState({
+      isOpen: true
+    })
+  }
+
   render() {
-    return this.props.isOpen ?
+    return this.state.isOpen ?
       <TimerForm />:
       <div className="ui basic content center aligned segment">
         <button className="ui basic button icon">
-          <i className="plus icon"/>
+          <i className="plus icon" onClick={this.handleFormOpen}/>
         </button>
       </div>;
   }
