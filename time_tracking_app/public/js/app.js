@@ -1,10 +1,28 @@
 class TimerDashboard extends React.Component {
+  state = {
+    timers: [
+      {
+        title: 'Practice Barbell Squat',
+        project: 'Strength Training',
+        id: uuid.v4(),
+        elapsed: 5456099,
+        runningSince: Date.now(),
+      },
+      {
+        title: 'Bake squash',
+        project: 'Kitchen Chores',
+        id: uuid.v4(),
+        elapsed: 1273998,
+        runningSince: null,
+      }
+    ]
+  }
   render() {
     return (
       <div className="ui three column centered grid">
         <div className="column">
-          <EditableTimerList />
-          <ToggleableTimerForm isOpen={true} />
+          <EditableTimerList timers={this.state.timers}/>
+          <ToggleableTimerForm />
         </div>
       </div>
     );
@@ -16,7 +34,7 @@ class EditableTimerList extends React.Component {
     return (
       <div id="timers">
         <EditableTimer
-          title='Learn React'
+          title='Learn ReactJS'
           project='Javascript'
           elapsed='8986300'
           runningSince={null}
@@ -76,19 +94,6 @@ class TimerForm extends React.Component {
   }
 }
 
-class ToggleableTimerForm extends React.Component {
-  // If prop isOen is true then render TimerForm else render the button
-  render() {
-    return this.props.isOpen ?
-      <TimerForm />:
-      <div className="ui basic content center aligned segment">
-        <button className="ui basic button icon">
-          <i className="plus icon"/>
-        </button>
-      </div>;
-  }
-}
-
 class Timer extends React.Component {
   render() {
     const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
@@ -109,12 +114,26 @@ class Timer extends React.Component {
             </span>
           </div>
         </div>
-        <div className="ui bottom attached blue basic icon">Start</div>
+        <div className="ui bottom attached blue basic button">
+          Start
+        </div>
       </div>
     );
   }
 }
 
+class ToggleableTimerForm extends React.Component {
+  // If prop isOen is true then render TimerForm else render the button
+  render() {
+    return this.props.isOpen ?
+      <TimerForm />:
+      <div className="ui basic content center aligned segment">
+        <button className="ui basic button icon">
+          <i className="plus icon"/>
+        </button>
+      </div>;
+  }
+}
 
 ReactDOM.render(
   <TimerDashboard />,
