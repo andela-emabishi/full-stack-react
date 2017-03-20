@@ -30,13 +30,25 @@ class TimerDashboard extends React.Component {
       }
     ]
   }
+// from ToggleableTimerForm
+  handleCreateFormSubmit = (timer) => {
+    this.createTimer(timer);
+  }
+
+  createTimer = (timer) => {
+    const newTimer = helpers.newTimer(timer)
+    this.setState({
+      // Object.assign({}, state, state.timers.push(timer))
+      timers: this.state.timers.concat(newTimer)
+    })
+  }
 
   render() {
     return (
       <div className="ui three column centered grid">
         <div className="column">
-          <EditableTimerList timers={this.state.timers}/>
-          <ToggleableTimerForm />
+          <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit}/>
+          <ToggleableTimerForm onFormSubmit={this.handleCreateFormSubmit}/>
         </div>
       </div>
     );
@@ -118,8 +130,16 @@ class TimerForm extends React.Component {
     })
   }
 
+  handleSubmit = () => {
+    this.props.onFormSubmit({
+      id: this.props.id,
+      title: this.state.title,
+      project: this.state.project
+    })
+  }
+
   render() {
-    const submitText = this.props.title ? 'Update' : 'Create';
+    const submitText = this.props.id ? 'Update' : 'Create';
     return (
       <div className="ui centered card">
         <div className="content">
@@ -133,13 +153,54 @@ class TimerForm extends React.Component {
               <input type="text" value={this.state.project} onChange={this.handleProjectChange}/>
             </div>
             <div className="ui two bottom attached buttons">
-              <button className="ui basic blue button">{submitText}</button>
-              <button className="ui basic red button">Cancel</button>
+              <button className="ui basic blue button" onClick={this.handleSubmit}>{submitText}</button>
+              <button className="ui basic red button" onClick={this.props.onFormClose}>Cancel</button>
             </div>
           </div>
         </div>
       </div>
     );
+  }
+}
+
+class ToggleableTimerForm extends React.Component {
+  // If prop isOen is true then render TimerForm else render the button
+  // manages its own state i.e. if isOpen, the form will show, if !isOpen, the button will show
+  state = {
+    // Form closed by default and the button shows
+    isOpen: false
+  }
+
+// ES7 property initialiser syntax.
+// No need to bind this of function to instance of parent class to be extended
+  handleFormOpen = () => {
+    this.setState({
+      isOpen: true
+    })
+  }
+
+  handleFormClose = () => {
+    this.setState({
+      isOpen: false
+    })
+  }
+
+  handleFormSubmit = (timer) => {
+    this.props.onFormSubmit(timer);
+    // close timer after submit
+    this.setState({
+      isOpen: false
+    })
+  }
+
+  render() {
+    return this.state.isOpen ?
+      <TimerForm onFormClose={this.handleFormClose} onFormSubmit={this.handleFormSubmit}/>:
+      <div className="ui basic content center aligned segment">
+        <button className="ui basic button icon">
+          <i className="plus icon" onClick={this.handleFormOpen}/>
+        </button>
+      </div>;
   }
 }
 
@@ -171,32 +232,6 @@ class Timer extends React.Component {
   }
 }
 
-class ToggleableTimerForm extends React.Component {
-  // If prop isOen is true then render TimerForm else render the button
-  // manages its own state i.e. if isOpen, the form will show, if !isOpen, the button will show
-  state = {
-    // Form closed by default and the button shows
-    isOpen: false
-  }
-
-// ES7 property initialiser syntax.
-// No need to bind this of function to instance of parent class to be extended
-  handleFormOpen = () => {
-    this.setState({
-      isOpen: true
-    })
-  }
-
-  render() {
-    return this.state.isOpen ?
-      <TimerForm />:
-      <div className="ui basic content center aligned segment">
-        <button className="ui basic button icon">
-          <i className="plus icon" onClick={this.handleFormOpen}/>
-        </button>
-      </div>;
-  }
-}
 
 ReactDOM.render(
   <TimerDashboard />,
