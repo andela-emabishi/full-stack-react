@@ -39,27 +39,36 @@ class TimerDashboard extends React.Component {
     });
   };
 
-  handleEditFormSubmit = (timer_attributes) => {
-    this.updateTimer(timer_attributes);
+  handleEditFormSubmit = (edited_timer_attributes) => {
+    this.updateTimer(edited_timer_attributes);
   };
 
-  updateTimer = (timer_attributes) => {
+  updateTimer = (edited_timer_attributes) => {
     this.setState({
-      // timers: this.editTimer(timer_attributes)
-      // timer_attributes include id,title,project
+      // timers: this.editTimer(edited_timer_attributes)
+      // edited_timer_attributes include id,title,project
       timers: this.state.timers.map(timer => {
-          return timer.id === timer_attributes.id ?
-            Object.assign({}, timer, { title: timer_attributes.title, project: timer_attributes.project }):
+          return timer.id === edited_timer_attributes.id ?
+            Object.assign({}, timer, { title: edited_timer_attributes.title, project: edited_timer_attributes.project }):
             timer
         })
     });
   };
 
+  handleDeleteForm = (deleted_timer_id) => {
+    // Filter = Return true to keep the element, otherwise remove element
+    // i.e. keep everything that doesn't have an id with the deleted timer id
+    console.log(deleted_timer_id);
+    this.setState({
+      timers: this.state.timers.filter(timer => timer.id !== deleted_timer_id)
+      })
+  }
+
   render() {
     return (
       <div className="ui three column centered grid">
         <div className="column">
-          <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit}/>
+          <EditableTimerList timers={this.state.timers} onFormSubmit={this.handleEditFormSubmit} onFormDelete={this.handleDeleteForm}/>
           <ToggleableTimerForm onFormSubmit={this.handleCreateFormSubmit}/>
         </div>
       </div>
@@ -78,6 +87,7 @@ class EditableTimerList extends React.Component {
         elapsed={timer.elapsed}
         runningSince={timer.runningSince}
         onFormSubmit={this.props.onFormSubmit}
+        onFormDelete={this.props.onFormDelete}
         />
     })
     return (
@@ -122,6 +132,10 @@ class EditableTimer extends React.Component {
     this.closeForm();
   }
 
+  handleDeleteClick = (timer_id) => {
+    this.props.onFormDelete(this.props.id);
+  }
+
   render() {
     return this.state.editFormIsOpen ?
     // Form only requires title and project to render editable form
@@ -140,6 +154,7 @@ class EditableTimer extends React.Component {
       elapsed={this.props.elapsed}
       runningSince={this.props.runningSince}
       onEditClick={this.handleEditClick}
+      onDeleteClick={this.handleDeleteClick}
     />;
   }
 }
@@ -265,7 +280,7 @@ class Timer extends React.Component {
             <span className="right floated edit icon" onClick={this.props.onEditClick}>
               <i className="edit icon"/>
             </span>
-            <span className="right floated trash icon">
+            <span className="right floated trash icon" onClick={this.props.onDeleteClick}>
               <i className="trash icon"/>
             </span>
           </div>
