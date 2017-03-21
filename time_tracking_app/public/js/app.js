@@ -1,8 +1,3 @@
-/*
-  eslint-disable react/prefer-stateless-function, react/jsx-boolean-value,
-  no-undef, jsx-a11y/label-has-for
-*/
-
 class TimerDashboard extends React.Component {
   // Property initialiser syntax. No need to create constructor to call super
   state = {
@@ -30,18 +25,35 @@ class TimerDashboard extends React.Component {
       }
     ]
   }
-// from ToggleableTimerForm
+
   handleCreateFormSubmit = (timer) => {
     this.createTimer(timer);
   }
 
   createTimer = (timer) => {
-    const newTimer = helpers.newTimer(timer)
+    // create and add new timer to EditableTimerList
+    const newTimer = helpers.newTimer(timer);
+    // this.setState(Object.assign({}, this.state, this.state.timers.push(newTimer)))
     this.setState({
-      // Object.assign({}, state, state.timers.push(timer))
       timers: this.state.timers.concat(newTimer)
-    })
-  }
+    });
+  };
+
+  handleEditFormSubmit = (timer_attributes) => {
+    this.updateTimer(timer_attributes);
+  };
+
+  updateTimer = (timer_attributes) => {
+    this.setState({
+      // timers: this.editTimer(timer_attributes)
+      // timer_attributes include id,title,project
+      timers: this.state.timers.map(timer => {
+          return timer.id === timer_attributes.id ?
+            Object.assign({}, timer, { title: timer_attributes.title, project: timer_attributes.project }):
+            timer
+        })
+    });
+  };
 
   render() {
     return (
@@ -57,16 +69,17 @@ class TimerDashboard extends React.Component {
 
 class EditableTimerList extends React.Component {
   render() {
-    const TimerComponents = this.props.timers.map(timer => (
-      <EditableTimer
-        key={timer.id}
+    const TimerComponents = this.props.timers.map(timer => {
+      return <EditableTimer
+        key={'timer' + timer.id}
         id={timer.id}
         title={timer.title}
         project={timer.project}
         elapsed={timer.elapsed}
         runningSince={timer.runningSince}
+        onFormSubmit={this.props.onFormSubmit}
         />
-    ))
+    })
     return (
       <div id="timers">
         {TimerComponents}
@@ -76,20 +89,49 @@ class EditableTimerList extends React.Component {
 }
 
 // renders TimerForm or Timer depending on whether the editFormIsOpen bool is true or false
-// manages the state of the edit form because top level component TimerDashboard
-// doesn't need to know whether the timer form is open or not
+// manages the state of the edit form because top level component TimerDashboard and EditableTimer
+// don't need to know whether the timer form is open or not
 class EditableTimer extends React.Component {
   state = {
     // closed by default
     editFormIsOpen: false
   }
+
+  handleEditClick = () => {
+    this.openForm()
+  }
+
+  openForm = () => {
+    this.setState({
+      editFormIsOpen: true
+    })
+  }
+
+  handleFormClose = () => {
+    this.closeForm()
+  }
+
+  closeForm = () => {
+    this.setState({
+      editFormIsOpen: false
+    })
+  }
+
+  handleSubmit = (timer) => {
+    this.props.onFormSubmit(timer);
+    this.closeForm();
+  }
+
   render() {
     return this.state.editFormIsOpen ?
     // Form only requires title and project to render editable form
+    // id required to identify each timer
     <TimerForm
       id={this.props.id}
       title={this.props.title}
       project={this.props.project}
+      onFormSubmit={this.handleSubmit}
+      onFormClose={this.handleFormClose}
     />:
     <Timer
       id={this.props.id}
@@ -97,6 +139,7 @@ class EditableTimer extends React.Component {
       project={this.props.project}
       elapsed={this.props.elapsed}
       runningSince={this.props.runningSince}
+      onEditClick={this.handleEditClick}
     />;
   }
 }
@@ -106,9 +149,9 @@ class TimerForm extends React.Component {
     super(props,context);
     this.state = {
       // since we're using props to initialise the state object, we must have a constructor that calls super with props
-      // When the Timerform Component is used to create a new timer, the title and project description
-      //  will be blank hence those props will be undefined
-      // When it's used to edit a timer, the props will be valid
+      // When the ToggleableTimerForm Component is used to create a new timer, the title and project description will be blank
+      // To prevent an undefined error when this occurs we initialise the title and description as blank in this case
+      // When it's used to edit a timer, the props from EditableTimer will be valid
       title: this.props.title || '',
       project: this.props.project || ''
     }
@@ -174,6 +217,7 @@ class ToggleableTimerForm extends React.Component {
 // ES7 property initialiser syntax.
 // No need to bind this of function to instance of parent class to be extended
   handleFormOpen = () => {
+    // when state changes, Component is re-rendered
     this.setState({
       isOpen: true
     })
@@ -182,12 +226,14 @@ class ToggleableTimerForm extends React.Component {
   handleFormClose = () => {
     this.setState({
       isOpen: false
-    })
+    });
   }
 
   handleFormSubmit = (timer) => {
+    // add timer to list of timers
+    // call function in parent component TimerDashboard
     this.props.onFormSubmit(timer);
-    // close timer after submit
+    // close form after you're done
     this.setState({
       isOpen: false
     })
@@ -206,7 +252,7 @@ class ToggleableTimerForm extends React.Component {
 
 class Timer extends React.Component {
   render() {
-    const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
+    const elapsedString = helpers.renderElapsedString(this.props.elapsed);
     return (
       <div className="ui centered card">
         <div className="content">
@@ -216,11 +262,11 @@ class Timer extends React.Component {
             <h2>{elapsedString}</h2>
           </div>
           <div className="extra content">
-            <span className="right floated edit icon">
-              <i className="edit icon" />
+            <span className="right floated edit icon" onClick={this.props.onEditClick}>
+              <i className="edit icon"/>
             </span>
             <span className="right floated trash icon">
-              <i className="trash icon" />
+              <i className="trash icon"/>
             </span>
           </div>
         </div>
@@ -231,7 +277,6 @@ class Timer extends React.Component {
     );
   }
 }
-
 
 ReactDOM.render(
   <TimerDashboard />,
