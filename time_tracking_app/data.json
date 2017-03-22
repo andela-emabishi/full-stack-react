@@ -26,5 +26,19 @@
         "id": "425cb27b-918f-46aa-9e87-2adb5076337f",
         "elapsed": 0,
         "runningSince": 1489861081199
+    },
+    {
+        "title": "Max Bench 100kg",
+        "project": "Strength Training",
+        "id": "425cb27b-918f-46aa-9e87-2adb5076337p",
+        "elapsed": 3916507,
+        "runningSince": null
+    },
+    {
+        "title": "Learn ReactJS",
+        "project": "JS",
+        "id": "df609524-baa9-413f-8b8a-eb1f33205972",
+        "elapsed": 0,
+        "runningSince": 1490196894516
     }
 ]
