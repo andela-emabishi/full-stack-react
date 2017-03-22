@@ -8,6 +8,9 @@ window.client = (function () {
       },
     }).then(checkStatus)
       .then(parseJSON)
+      // after getting a response, call the success function, which is what we'll pass to getTimers when calling it
+      // success function is a callback.
+      // Each .then() passed a function
       .then(success);
   }
 
