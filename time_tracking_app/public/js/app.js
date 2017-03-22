@@ -1,29 +1,21 @@
 class TimerDashboard extends React.Component {
-  // Property initialiser syntax. No need to create constructor to call super
   state = {
-    timers: [
-      {
-        title: 'Practice Barbell Squat',
-        project: 'Strength Training',
-        id: uuid.v4(),
-        elapsed: 5456099,
-        runningSince: Date.now(),
-      },
-      {
-        title: 'Bake squash',
-        project: 'Kitchen Chores',
-        id: uuid.v4(),
-        elapsed: 1273998,
-        runningSince: null,
-      },
-      {
-        title: 'Max Bench 100kg',
-        project: 'Strength Training',
-        id: uuid.v4(),
-        elapsed: 3890985,
-        runningSince: null
-      }
-    ]
+    timers: []
+  };
+
+  componentDidMount() {
+    // call client to fetch timers from data.js
+    this.loadTimersFromServer();
+    // synchronise state with server periodically
+    setInterval(this.loadTimersFromServer(),5000)
+  }
+
+  loadTimersFromServer = () => {
+    client.getTimers(timers => {
+      this.setState({
+        timers //ES6 shorthand for timers: timers
+      })
+    })
   }
 
   handleCreateFormSubmit = (timer) => {
@@ -37,6 +29,12 @@ class TimerDashboard extends React.Component {
     this.setState({
       timers: this.state.timers.concat(newTimer)
     });
+    // Propagate event to server and then data.js
+    client.createTimer({
+      title: newTimer.title,
+      project: newTimer.project,
+      id: newTimer.id
+    })
   };
 
   handleEditFormSubmit = (edited_timer_attributes) => {
@@ -53,39 +51,54 @@ class TimerDashboard extends React.Component {
             timer
         })
     });
+    client.updateTimer({
+      id: edited_timer_attributes.id,
+      title: edited_timer_attributes.title,
+      project: edited_timer_attributes.project
+    })
   };
 
   handleDeleteForm = (deleted_timer_id) => {
     // Filter = Return true to keep the element, otherwise remove element
     // i.e. keep everything that doesn't have an id with the deleted timer id
-    console.log(deleted_timer_id);
+    // console.log(deleted_timer_id);
     this.setState({
       timers: this.state.timers.filter(timer => timer.id !== deleted_timer_id)
+      })
+      client.deleteTimer({
+        id: deleted_timer_id
       })
   }
 
   handleStartClick = (timerId) => {
     // console.log('Start', timerId);
+    const now = Date.now();
     this.setState({
       timers: this.state.timers.map(timer => {
           return timer.id === timerId ?
-           Object.assign({}, timer, { runningSince: Date.now() }):
+           Object.assign({}, timer, { runningSince: now }):
           timer
       })
-    })
+    });
+    client.startTimer({id: timerId, start: now });
   }
 
   handleStopClick = (timerId) => {
-    // set Running since of stopped timer to null then setState
+    // set elapsed to previously elapsed + elapsed since the timer was started then
+    // set runningSince of stopped timer to null then setState
     // console.log('Stop', timerId);
+    const now = Date.now();
     this.setState({
       timers: this.state.timers.map(timer => {
-        const lastElapsed = Date.now() - timer.runningSince
+        const lastElapsed = now - timer.runningSince
             return timer.id === timerId ?
               Object.assign({}, timer, { elapsed: timer.elapsed + lastElapsed, runningSince: null }):
               timer
       })
-    })
+    });
+    // Propagate stop to the server after rendering component with new state
+    // Optimistic rendering. Optimistic that post to server will go well
+    client.stopTimer({id: timerId, stop: now });
   }
 
   render() {
