@@ -266,8 +266,23 @@ class ToggleableTimerForm extends React.Component {
 }
 
 class Timer extends React.Component {
+  componentDidMount() {
+    // set force update interval at which to re-render Timer
+    // React's forceUpdate method forces a component to re-render
+    // JavaScript setInterval calls the function within it after a specified time period
+    // setInterval(function() {}, timeToTriggerFunction)
+    this.forceUpdateInterval = setInterval(() => (this.forceUpdate(), 50))
+  }
+
+  componentWillUnmount() {
+    // clearInterval stops the setInterval function invocation
+    // id value returned by setInterval is passed into clearInterval to stop the function invocation
+    // componentWillUnmount called before the component is unmounted from the DOM
+    clearInterval(this.forceUpdateInterval)
+  }
+
   render() {
-    const elapsedString = helpers.renderElapsedString(this.props.elapsed);
+    const elapsedString = helpers.renderElapsedString(this.props.elapsed, this.props.runningSince);
     return (
       <div className="ui centered card">
         <div className="content">
