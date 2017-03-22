@@ -300,11 +300,23 @@ class Timer extends React.Component {
             </span>
           </div>
         </div>
-        <div className="ui bottom attached blue basic button">
-          Start
-        </div>
+        <TimerButton timerIsRunning={!!this.props.runningSince}/>
       </div>
     );
+  }
+}
+
+
+class TimerButton extends React.Component {
+  // const actionText = return this.props.runningSince ? `Start` : `Stop`
+  render() {
+    return this.props.timerIsRunning ?
+      <div className="ui bottom attached red basic button" onClick={this.props.handleStopTimer}>
+        Stop
+      </div>:
+      <div className="ui bottom attached green basic button" onClick={handleStartTimer}>
+        Start
+      </div>
   }
 }
 
