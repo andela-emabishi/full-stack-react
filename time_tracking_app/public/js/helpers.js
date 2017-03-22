@@ -21,7 +21,11 @@ window.helpers = (function () {
 
   function renderElapsedString(elapsed, runningSince) {
     let totalElapsed = elapsed;
+    // if the timer has been started runningSince is not null
+    // if the timer has been stopped or not started, runningSince is null
     if (runningSince) {
+      // its been running for this long
+      // i.e. totalElapsed = totalElapsed + (Date.now() - runningSince)
       totalElapsed += Date.now() - runningSince;
     }
     return millisecondsToHuman(totalElapsed);
