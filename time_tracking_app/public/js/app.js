@@ -51,11 +51,12 @@ class TimerDashboard extends React.Component {
             timer
         })
     });
-    client.updateTimer({
-      id: edited_timer_attributes.id,
-      title: edited_timer_attributes.title,
-      project: edited_timer_attributes.project
-    })
+    client.updateTimer(
+      // id: edited_timer_attributes.id,
+      // title: edited_timer_attributes.title,
+      // project: edited_timer_attributes.project
+      edited_timer_attributes
+    )
   };
 
   handleDeleteForm = (deleted_timer_id) => {
